@@ -12,17 +12,20 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: HTML lint
+        run: npx --yes html-validate index.html
+
       - name: Build Docker image
+        if: always()
         run: docker build -t test-image .
 
       - name: Smoke test container
+        if: always()
         run: |
           docker run -d -p 8080:80 --name test test-image
           sleep 3
           curl -f http://localhost:8080 | grep -q "AdlerAlex1" && echo "OK"
           docker stop test
-      - name: HTML lint
-        run: npx --yes html-validate index.html
 
   release:
     needs: ci
